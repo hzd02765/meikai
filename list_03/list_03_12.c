@@ -38,7 +38,7 @@ int rehash(int key)
   return ((key + 1) % 13);
 }
 
-void SetBucked(Bucket *n, Data x, Status stat)
+void SetBucket(Bucket *n, Data x, Status stat)
 {
   n->data = x;
   n->stat = stat;
