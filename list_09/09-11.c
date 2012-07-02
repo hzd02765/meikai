@@ -5,9 +5,168 @@
 #define NO 1
 #define NAME 2
 
-typeof enum{
+typedef enum{
   Term, InsFront, InsRear, RmvFront, RmvRear, PrintCrnt, RmvCrnt, SrchNo, SrchName, PrintAll, Clear
 } Menu;
+
+typedef struct{
+  int no;
+  char name[10];
+} Data;
+
+typedef struct __node{ 
+  Data data;
+  struct __node *next;
+}Node;
+
+typedef struct {
+  Node *head;
+  Node *crnt;
+} List;
+
+Node *AllocNode(void)
+{
+  return ((Node *)calloc(1, sizeof(Node)));
+}
+
+void InitList(List *list)
+{
+  list->head = NULL;
+  list->crnt = NULL;
+}
+
+void SetNode(Node *n, Data x, Node *next)
+{
+  n->data = x;
+  n->next = next;
+}
+
+int NoEqual(Data x, Data y)
+{
+  return (x.no == y.no);
+}
+
+int NameEqual(Data x, Data y)
+{
+  return (strcmp(x.name, y.name) == 0);
+}
+
+Node *SearchNode(List *list, Data x, int equal(Data x, Data y))
+{
+  Node *ptr = list->head;
+
+  while (ptr != NULL){
+    if (equal(ptr->data, x)){
+	list->crnt = ptr;
+	return (ptr);
+    }
+    ptr = ptr->next;
+  }
+  return (NULL);
+}
+
+void InsertFront(List *list, Data x)
+{
+  Node *ptr = list->head;
+  list->head = list->crnt = AllocNode();
+  SetNode(list->head, x, ptr);
+}
+
+void InsertRear(List *list, Data x)
+{
+  if (list->head == NULL){
+    InsertFront(list, x);
+  }else{
+    Node *ptr = list->head;
+    while (ptr->next != NULL){
+      ptr = ptr->next;
+    }
+    ptr->next = list->crnt = AllocNode();
+    SetNode(ptr->next, x, NULL);
+  }
+}
+
+void RemoveFront(List *list)
+{
+  if (list->head != NULL){
+    Node *ptr = (list->head)->next;
+    free(list->head);
+    list->head = list->crnt = ptr;
+  }
+}
+
+void RemoveRear(List *list)
+{
+  if (list->head != NULL){
+    if((list->head)->next == NULL){
+      RemoveFront(list);
+    }else{
+      Node *ptr = list->head;
+      Node *pre;
+
+      while (ptr->next != NULL){
+	pre = ptr;
+	ptr = ptr->next;
+      }
+      pre->next = NULL;
+      free(ptr);
+      list->crnt = pre;
+    }
+  }
+}
+
+void RemoveCrnt(List *list)
+{
+  if (list->head != NULL){
+    if (list->crnt == list->head){
+      RemoveFront(list);
+    }else{
+      Node *ptr = list->head;
+
+      while (ptr->next != list->crnt){
+	ptr = ptr->next;
+      }
+      ptr->next = list->crnt->next;
+      free(list->crnt);
+      list->crnt = ptr;
+    }
+  }
+}
+
+void ClearList(List *list)
+{
+  while (list->head != NULL){
+    RemoveFront(list);
+  }
+  list->crnt = NULL;
+}
+
+void PrintData(Data x){
+  printf("番号：%d 氏名：%s\n", x.no, x.name);
+}
+void PrintCrntNode(List *list)
+{
+  if (list->crnt == NULL){
+    puts("着目要素はありません。");
+  }else{
+    PrintData(list->crnt->data);
+  }
+}
+
+void PrintList(List *list)
+{
+  if (list->head == NULL){
+    puts("ノードがありません。");
+  }else{
+    Node *ptr = list->head;
+
+    puts("【一覧表】");
+    while (ptr != NULL){
+      PrintData(ptr->data);
+      ptr = ptr->next;
+    }
+  }
+}
 
 void TermList(List *list)
 {
@@ -59,7 +218,7 @@ int main(void)
   Menu menu;
   List list;
 
-  InitList($list);
+  InitList(&list);
 
   do {
     Data x;
@@ -71,7 +230,7 @@ int main(void)
       break;
     case InsRear:
       x = Read("末尾に挿入", NO | NAME);
-      insertRear(&list, x);
+      InsertRear(&list, x);
       break;
     case RmvFront:
       RemoveFront(&list);
@@ -82,7 +241,7 @@ int main(void)
     case PrintCrnt:
       PrintCrntNode(&list);
       break;
-    case RmvCnt:
+    case RmvCrnt:
       RemoveCrnt(&list);
       break;
     case SrchNo:
@@ -101,7 +260,7 @@ int main(void)
       PrintList(&list);
       break;
     case Clear:
-      ClearList($list);
+      ClearList(&list);
       break;
     }
   } while (menu != Term);
