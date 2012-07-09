@@ -15,7 +15,7 @@ typedef struct{
   char name[10];
 } Data;
 
-typedef int index;
+typedef int Index;
 
 typedef struct{
   Data data;
@@ -176,12 +176,12 @@ void TermList(List *list)
 
 void PrintData(Data x)
 {
-  printf("番号：%s 氏名：%x\n", x.no, x.name);
+  printf("番号：%d 氏名：%s\n", x.no, x.name);
 }
 
 void PrintCrntNode(const List *list)
 {
-  if (list->crnt = Null){
+  if (list->crnt == Null){
     puts("着目要素はありません。");
   }else{
     PrintData(list->n[list->crnt].data);
@@ -232,7 +232,7 @@ Menu SelectMenu(void)
 
   do {
     for (i = Term; i < Clear; i++){
-      printf("(%2d) %-18.18s ", i + 1, mstring[i]);
+      printf("(%2d) %-18.18s  ", i + 1, mstring[i]);
       if ((i % 3) == 2){
 	putchar('\n');
       }
@@ -242,4 +242,61 @@ Menu SelectMenu(void)
   } while (ch < Term || ch > Clear);
 
   return ((Menu)ch);
+}
+
+int main(void)
+{
+  Menu menu;
+  List list;
+
+  InitList(&list, 100);
+
+  do {
+    Data x;
+
+    switch (menu = SelectMenu()){
+    case InsFront :
+      x = Read("先頭に挿入", NO | NAME);
+      InsertFront(&list, x);
+      break;
+    case InsRear:
+      x = Read("末尾に挿入", NO | NAME);
+      InsertRear(&list, x);
+      break;
+    case RmvFront:
+      RemoveFront(&list);
+      break;
+    case RmvRear:
+      RemoveRear(&list);
+      break;
+    case PrintCrnt:
+      PrintCrntNode(&list);
+      break;
+    case RmvCrnt:
+      RemoveCrnt(&list);
+      break;
+    case SrchNo:
+      x = Read("探索", NO);
+      if (SearchNode (&list, x, NoEqual) != Null){
+	PrintCrntNode(&list);
+      }
+      break;
+    case SrchName:
+      x = Read("探索", NAME);
+      if (SearchNode(&list, x, NameEqual) != Null){
+	PrintCrntNode(&list);
+      }
+      break;
+    case PrintAll:
+      PrintList(&list);
+      break;
+    case Clear:
+      ClearList(&list);
+      break;
+    }
+  } while (menu != Term);
+
+  TermList(&list);
+
+  return (0);  
 }
