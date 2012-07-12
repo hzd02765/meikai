@@ -94,3 +94,64 @@ void FreeTree(BinNode *p)
 
 Data Read(const char *message, int sw)
 {
+  Data temp;
+
+  printf("%sするデータを入力してください。\n", message);
+
+  if (sw & NO){
+    printf("番号：");
+    scanf("%d", &temp.no);
+  }
+
+  if (sw & NAME){
+    printf("名前：");
+    scanf("%s", temp.name);
+  }
+
+  return (temp);
+}
+
+Menu SelectMenu(void)
+{
+  int ch;
+
+  do {
+    printf("\n(1)挿入　(2)探索　(3)表示　(0)終了　：");
+    scanf("%d", &ch);
+  } while (ch < Term || ch > Print);
+
+  return ((Menu)ch);
+}
+
+int main(void)
+{
+  Menu menu;
+  BinNode *root;
+
+  root = NULL;
+  do {
+    Data x;
+    BinNode *temp;
+
+    switch (menu = SelectMenu()) {
+    case Insert:
+      x = Read("挿入", NO | NAME);
+      root = InsertNode(root, x);
+      break;
+    case Search:
+      x = Read("探索", NAME);
+      if ((temp = SearchNode(root, x)) != NULL){
+	PrintData(temp->data);
+      }
+      break;
+    case Print:
+      puts("【一覧表】");
+      PrintTree(root);
+      break;
+    }
+  } while (menu != Term);
+
+  FreeTree(root);
+
+  return (0);
+}
